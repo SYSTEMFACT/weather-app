@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Weather({ weather }) {
   const [isFah, setIsFah] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState("day");
 
   if (!weather || weather.temp == null) {
     return <h2>No hay datos de temperatura disponibles.</h2>;
@@ -9,8 +10,24 @@ function Weather({ weather }) {
 
   const temperature = isFah ? (weather.temp * 9 / 5) + 32 : weather.temp;
 
+  // Verificar si es de día o de noche basado en la zona horaria
+  useEffect(() => {
+    const localTime = new Date().toLocaleString("en-US", {
+      timeZone: weather.timezone, 
+      hour: '2-digit',
+      hour12: false
+    });
+
+    const hour = parseInt(localTime, 10);
+    if (hour >= 6 && hour < 18) {
+      setTimeOfDay("day");
+    } else {
+      setTimeOfDay("night");
+    }
+  }, [weather.timezone]);
+
   return (
-    <div className="weather-container">
+    <div className={`weather-container ${weather.condition} ${timeOfDay}`}>
       <h1>Weather App</h1>
       <p>{weather.city}, {weather.country}</p>
 
@@ -40,4 +57,3 @@ function Weather({ weather }) {
 }
 
 export default Weather;
-

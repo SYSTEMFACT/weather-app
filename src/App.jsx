@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import axios from 'axios'
 import Weather from "./componets/Weather"
 
+
 // Se importa la llave del archivo .env
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -26,10 +27,22 @@ const icons = {
   clouds: '☁️'
 }
 
+const getTimezone = (countryCode, cityName) => {
+  const timezones = {
+    "PE": "America/Lima",
+    "CL": cityName === "Punta Arenas" ? "America/Punta_Arenas" : "America/Santiago",
+    "US": "America/New_York",
+    // Agrega más zonas horarias según lo necesites
+  };
+
+  return timezones[countryCode] || "UTC";
+};
+
 function App() {
   const [coords, setCoords] = useState(null)
   const [weather, setWeather] = useState(null)
   const [message, setMessage] = useState('')
+  const [timeOfDay, setTimeOfDay] = useState('day')
 
   useEffect (() => {
     if (window.navigator.geolocation) {
@@ -58,6 +71,8 @@ function App() {
           
           const weatherKey = keys.find((k) => codes[k].includes(codeId));
 
+          const timezone = getTimezone(res.data.sys.country, res.data.name)
+
           const newObject = {
             city: res.data.name,
             country: res.data.sys.country,
@@ -68,10 +83,23 @@ function App() {
             clouds: res.data.clouds.all,
             pressure: res.data.main.pressure,
             weatherType: weatherKey,
+            timezone: timezone,
           };
 
-          setWeather(newObject)            
+          setWeather(newObject);
+          
+          const now = new Date();
+          const options = { timeZone: timezone, hour: '2-digit', hour12: false };
+          const localHour = parseInt(new Intl.DateTimeFormat('en-US', options).format(now));
+
+          if (localHour >= 6 && localHour < 18) {
+            setTimeOfDay('day');
+          } else {
+            setTimeOfDay('night');
+          }
+
         })
+
         .catch((err) => {
           console.log(err);
           setMessage('Error fetching weather data');
@@ -80,20 +108,16 @@ function App() {
   }, [coords]);
 
    // Determina la clase de fondo
-   const backgroundClass = weather ? weather.weatherType : 'clear';
+   const backgroundClass = weather ? `${weather.weatherType} ${timeOfDay}` : 'clear day';
 
    return (
-    <div  className={`app-container ${backgroundClass}`}>
-      {weather ? (
-        <Weather weather={weather} />
-      ) : (
-        <div className="loader-container">
-          <div className="loader"></div>
-          <p className="loader-text">{message || "Getting the latest weather info..."}</p>
-        </div>
-      )}
+    <div className={`app-container ${backgroundClass}`}>
+      {weather
+        ? <Weather weather={weather} />
+        : <h1 style={{ color: 'white' }}>{message || 'Loading weather data...'}</h1>}
     </div>
-  );
+    
+    );
 }
 
 export default App
