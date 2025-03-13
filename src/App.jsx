@@ -26,8 +26,6 @@ const icons = {
   clouds: '☁️'
 }
 
-//falsy thurthy
-//falsy 0, null, undefined, NaN, '', false, 
 function App() {
   const [coords, setCoords] = useState(null)
   const [weather, setWeather] = useState(null)
@@ -42,7 +40,6 @@ function App() {
 
         function error () {
           console.log('permission denied')
-          // Solicitude error
           setMessage('Permission denied')
         }
 
@@ -59,36 +56,44 @@ function App() {
           const codeId = res.data.weather[0].id
           const keys = Object.keys(codes)
           
+          const weatherKey = keys.find((k) => codes[k].includes(codeId));
+
           const newObject = {
             city: res.data.name,
             country: res.data.sys.country,
             temp: res.data.main.temp,
             description: res.data.weather[0].description,
-            icon: icons[keys.find((k) => codes[k].includes(codeId))],
+            icon: icons[weatherKey],
             wind: res.data.wind.speed,
             clouds: res.data.clouds.all,
-            pressure: res.data.main.pressure
-          }
+            pressure: res.data.main.pressure,
+            weatherType: weatherKey,
+          };
 
           setWeather(newObject)            
         })
+        .catch((err) => {
+          console.log(err);
+          setMessage('Error fetching weather data');
+        });
     }
-  }, [coords])
+  }, [coords]);
 
-  const styles = {
-    display: 'grid',
-    placeContent: 'center',
-    height: '100dvh',
-    texAling: 'center',
-    backgroundColor: 'lightblue'
-  }
+   // Determina la clase de fondo
+   const backgroundClass = weather ? weather.weatherType : 'clear';
 
-  return (
-    <div style={styles}>
-        {weather && <Weather weather={weather} />}
-        <h1> {message}</h1>
+   return (
+    <div  className={`app-container ${backgroundClass}`}>
+      {weather ? (
+        <Weather weather={weather} />
+      ) : (
+        <div className="loader-container">
+          <div className="loader"></div>
+          <p className="loader-text">{message || "Getting the latest weather info..."}</p>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
 export default App

@@ -1,0 +1,341 @@
+longitud y latitud
+
+import { useState, useEffect } from "react"
+
+const API_KEY = '05c41567bd217502c8ab6578316f2ca6'
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather?'
+
+function App() {
+  const [coords, setCoords] = useState({ lat: 0, lon:0 })
+  useEffect (() => {
+    if (window.navigator.geolocation) {
+
+        function success ( coords ) {
+          const { latitude, longitude } = coords
+          setCoords({ lat: latitude, lon: longitude })
+        }
+
+        function error ( error ) {
+          console.log('permission denied')
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error)  
+        } else {
+          console.log('Geolocalitation is not sipported by this browser')
+        }
+  }, [])
+
+  return (
+    <div>
+        <h1>App {JSON.stringify(coords)}</h1>
+    </div>
+  )
+}
+
+export default App
+
+
+------------------------------
+
+eState, useEffect } from "react"
+import axios from 'axios'
+
+const API_KEY = '05c41567bd217502c8ab6578316f2ca6'
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather?'
+
+
+function App() {
+  const [coords, setCoords] = useState(null)
+  const [weather, setWeather] = useState(null)
+
+  useEffect (() => {
+    if (window.navigator.geolocation) {
+        function success ( coords ) {
+          const { latitude, longitude } = coords
+          setCoords({ lat: latitude, lon: longitude })
+        }
+
+        function error ( error ) {
+          console.log('permission denied')
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error)  
+        } else {
+          console.log('Geolocalitation is not sipported by this browser')
+        }
+  }, [])
+
+  useEffect (() => {
+    if (coords) {
+      axios.get(`${BASE_URL}lat=${coords.lat}&lon=${coords.lon}&units=metric&lang=es&appid=${API_KEY}`)
+      .then((res) => {
+          setWeather({
+            city: res.data.name,
+            country: res.data.sys.country,
+            temp: res.data.main.temp,
+            description: res.data.weather[0].description,
+            wind: res.data.wind.speed
+          })
+        })
+    }
+  }, [coords])
+
+  return (
+    <div>
+        <h1>Weather App</h1>
+        <pre>
+          {JSON.stringify(weather, null, 2)}
+        </pre>
+    </div>
+  )
+}
+
+export default App
+-------------------------------------
+/***** maquetado de weather ********/
+function Weather({ weather }) {
+
+  return (
+    <div>
+       <h1> Weather App</h1>
+       <p>{weather.city}, {weather.country}</p>
+        <div>
+            {/*<img src="" alt="" />*/}
+            <div>
+                <h2>"{weather.description}"</h2>
+                <ul>
+                    <li>Wind Speed <strong>{weather.wind}m/s</strong></li>
+                    <li>Clouds <strong>{weather.clouds}%</strong></li>
+                    <li>Pressure <strong>{weather.pressure}hPa</strong></li>
+                </ul>
+            </div>
+        </div>  
+        <div>
+            <h3>{weather.temp}°C</h3>
+            <button>
+                Change to °F
+            </button>
+        </div>   
+    </div>
+  )
+}
+
+export default Weather
+
+-----------------------------
+/***codigos de tormentas****/
+
+const codes = {
+  thunderstorm: [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
+  drizzle: [300, 301, 302, 310, 311, 312, 313, 314, 321],
+  rain: [500, 501, 502, 503, 504, 511, 520, 521, 522, 531],
+  snow: [600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
+  atmosphere: [701, 711, 721, 731, 741, 751, 761, 762, 771, 781],
+  clear: [800],
+  clouds: [801, 802, 803, 804]
+}
+
+----------------------------------------------------------------
+solo copie porsiacaso
+import { useState, useEffect } from "react"
+import axios from 'axios'
+import Weather from "./componets/Weather"
+
+const API_KEY = '05c41567bd217502c8ab6578316f2ca6'
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather?'
+
+const codes = {
+  thunderstorm: [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
+  drizzle: [300, 301, 302, 310, 311, 312, 313, 314, 321],
+  rain: [500, 501, 502, 503, 504, 511, 520, 521, 522, 531],
+  snow: [600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
+  atmosphere: [701, 711, 721, 731, 741, 751, 761, 762, 771, 781],
+  clear: [800],
+  clouds: [801, 802, 803, 804]
+}
+
+const icons = {
+  thunderstorm: '⛈️',
+  drizzle: '🌦️',
+  rain: '🌧️',
+  snow: '❄️',
+  atmosphere: '🌫️',
+  clear: '☀️',
+  clouds: '☁️'
+}
+
+//falsy thurthy
+//falsy 0, null, undefined, NaN, '', false, 
+
+function App() {
+  const [coords, setCoords] = useState(null)
+  const [weather, setWeather] = useState(null)
+
+  useEffect (() => {
+    if (window.navigator.geolocation) {
+        function success ( coords ) {
+          const { latitude, longitude } = coords
+          setCoords({ lat: latitude, lon: longitude })
+        }
+
+        function error ( error ) {
+          console.log('permission denied')
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error)  
+        } else {
+          console.log('Geolocalitation is not sipported by this browser')
+        }
+  }, [])
+
+  useEffect (() => {
+    if (coords) {
+      axios.get(`${BASE_URL}lat=${coords.lat}&lon=${coords.lon}&units=metric&lang=es&appid=${API_KEY}`)
+      .then((res) => {
+          setWeather({
+            city: res.data.name,
+            country: res.data.sys.country,
+            temp: res.data.main.temp,
+            description: res.data.weather[0].description,
+            wind: res.data.wind.speed
+          })
+        })
+    }
+  }, [coords])
+
+  return (
+    <div>
+        <h1>Weather && <Weather weather={} /></h1>
+        
+    </div>
+  )
+}
+
+export default App
+---------------------------------
+-------------------------------------------
+
+
+import { useState, useEffect } from "react"
+import axios from 'axios'
+import Weather from "./componets/Weather"
+
+const API_KEY = '05c41567bd217502c8ab6578316f2ca6'
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather?'
+
+const codes = {
+  thunderstorm: [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
+  drizzle: [300, 301, 302, 310, 311, 312, 313, 314, 321],
+  rain: [500, 501, 502, 503, 504, 511, 520, 521, 522, 531],
+  snow: [600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
+  atmosphere: [701, 711, 721, 731, 741, 751, 761, 762, 771, 781],
+  clear: [800],
+  clouds: [801, 802, 803, 804]
+}
+
+const icons = {
+  thunderstorm: '⛈️',
+  drizzle: '🌦️',
+  rain: '🌧️',
+  snow: '❄️',
+  atmosphere: '🌫️',
+  clear: '☀️',
+  clouds: '☁️'
+}
+
+//falsy thurthy
+//falsy 0, null, undefined, NaN, '', false, 
+function App() {
+  const [coords, setCoords] = useState(null)
+  const [weather, setWeather] = useState(null)
+
+  useEffect (() => {
+    if (window.navigator.geolocation) {
+      
+        function success ({ coords }) {
+          const { latitude, longitude } = coords
+          setCoords({ lat: latitude, lon: longitude })
+        }
+
+        function error () {
+          console.log('permission denied')
+          // Solicitude error
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error)  
+        } else {
+          console.log('Geolocalitation is not sipported by this browser')
+        }
+  }, [])
+
+  useEffect (() => {
+    if (coords) {
+      axios.get(`${BASE_URL}lat=${coords.lat}&lon=${coords.lon}&units=metric&lang=en&appid=${API_KEY}`)
+      .then((res) => {
+          console.log(res.data)
+          const codeId = res.data.weather[0].id
+          const keys = Object.keys(codes)
+          console.log(keys.find((k) => codes[k].includes(codeId)))
+          console.log(icons.find((k) => codes[k].includes(codeId)))
+
+
+          setWeather({
+            city: res.data.name,
+            country: res.data.sys.country,
+            temp: res.data.main.temp,
+            description: res.data.weather[0].description,
+            wind: res.data.wind.speed,
+            clouds: res.data.clouds.all,
+          })
+        })
+    }
+  }, [coords])
+
+  return (
+    <div>
+        <h1>Weather && <Weather weather={''} /></h1>
+        
+    </div>
+  )
+}
+
+export default App
+
+-----------------------------
+import { use, useState } from "react"
+
+function Weather({ weather }) {
+    const [isFah, setIsFah] = useState(false)
+    //(0 °c x 9/5) + 32 = 32 °F
+    const temperature = isFah ? (weather.temp * 9 / 5) + 32 : weather.temp
+
+  return (
+    <div>
+       <h1> Weather App</h1>
+       <p>{weather.city}, {weather.country}</p>
+        <div>
+            {/*<img src="" alt="" />*/}
+            <span role="img" aria-label='icon' style={{fontSize: '3rem' }}>
+                {weather.icon}
+            </span>
+            <div>
+                <h2>"{weather.description}"</h2>
+                <ul>
+                    <li>Wind Speed <strong>{weather.wind}m/s</strong></li>
+                    <li>Clouds <strong>{weather.clouds}%</strong></li>
+                    <li>Pressure <strong>{weather.pressure}hPa</strong></li>
+                </ul>
+            </div>
+        </div>  
+        <div>
+            <h3>{Math.ceil(weather.temp)}°C</h3>
+            <button onClick={() => setIsFah('isFah')}>
+                Change to {isFah ? 'celcius': 'Fahrenheit'}
+            </button>
+        </div>   
+    </div>
+  )
+}
+
+export default Weather
+
